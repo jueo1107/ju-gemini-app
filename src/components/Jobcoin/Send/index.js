@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 
-import { Wrapper } from './styled';
+import { Wrapper, Title, Inputs, Input, InputTitle, AmountInput, SendButton } from './styled';
 
 const Send = ({ userAddress, refetchData }) => {
   const [destinationAddress, setDestinationAddress] = useState('');
   const [amountToSend, setAmountToSend] = useState('');
 
   const handleChange = (value, type) => {
-    if (type === 'destination') {
-      setDestinationAddress(value);
-    } else {
-      setAmountToSend(value);
-    }
+    const setValue = type === 'destination' ? setDestinationAddress : setAmountToSend;
+    setValue(value);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const formData = new FormData();
     formData.append('fromAddress', userAddress);
     formData.append('toAddress', destinationAddress);
@@ -24,23 +21,29 @@ const Send = ({ userAddress, refetchData }) => {
       method: 'POST',
       body: formData
     };
-    //not accounting for error handling here
-    await fetch(`http://jobcoin.gemini.com/deferral-dodge/api/transactions`, requestOptions);
-    refetchData(true);
+
+    //not accounting for error handling here for this project
+    fetch(`http://jobcoin.gemini.com/deferral-dodge/api/transactions`, requestOptions).then(() => {
+      refetchData(true);
+      setDestinationAddress('');
+      setAmountToSend('');
+    });
   }
 
   return (
     <Wrapper>
-      <div>Send Jobcoin</div>
-      <div>
-        <div>Destination Address</div>
-        <input onChange={(event) => (handleChange(event.target.value, 'destination'))}/>
-      </div>
-      <div>
-        <div>Amount to Send</div>
-        <input onChange={(event) => (handleChange(event.target.value, 'amount'))}/>
-      </div>
-      <button onClick={handleSubmit}>Send Jobcoins</button>
+      <Title>Send Jobcoins</Title>
+      <Inputs>
+        <div>
+          <InputTitle>Destination Address</InputTitle>
+          <Input value={destinationAddress} onChange={(event) => (handleChange(event.target.value, 'destination'))}/>
+        </div>
+        <AmountInput>
+          <InputTitle>Amount to Send</InputTitle>
+          <Input  value={amountToSend} onChange={(event) => (handleChange(event.target.value, 'amount'))}/>
+        </AmountInput>
+        <SendButton onClick={handleSubmit}>Send Jobcoins</SendButton>
+      </Inputs>
     </Wrapper>
   )
 }

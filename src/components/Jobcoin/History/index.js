@@ -1,60 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import moment from 'moment';
 import Plot from "react-plotly.js";
+import moment from 'moment';
+
+import { Wrapper } from './styled';
 
 const History = ({ userAddress, data }) => {
-  const [plotData, setPlotData] = useState({});
+  const [lineGraphData, setLineGraphData] = useState({});
 
   useEffect(() => {
     if (data) {
-      const formattedPlotData = { 
+
+      const formattedLineGraphData = { 
         timestamps: [], 
         balances: [], 
         tooltips: [] 
       };
 
-      const { balance, transactions } = data;
-      let balanceHistory = parseFloat(balance);
+      //I looped from most recent to the earliest in order to calculate the balances for each transaction by using the current
+      //balance as the starting point in case theres an issue with the earliest transaction not being available or if at some point we
+      //limit how many transactions are shown which would mean cutting off transactions starting from the earliest one
+      //I added another solution below  that loops from the earliest to most recent transaction and calculates
+      //balance for each transaction by using the earliest transaction amount as the starting point
 
+      const { balance, transactions } = data;
+      let currentBalance = parseFloat(balance);
       for (let i = transactions.length - 1; i >= 0; i--) {
         const transaction = transactions[i];
         const { timestamp, toAddress, fromAddress, amount } = transaction;
 
-        formattedPlotData.timestamps.unshift(timestamp);
-        formattedPlotData.balances.unshift(balanceHistory);
-        formattedPlotData.tooltips.unshift(`To: ${toAddress}<br>From: ${fromAddress}</br>Transaction Amount: ${amount}`);
+        formattedLineGraphData.timestamps.unshift(moment(timestamp).format('MM/DD/YY hh:ss'));
+        formattedLineGraphData.balances.unshift(currentBalance);
+        formattedLineGraphData.tooltips.unshift(`To: ${toAddress}<br>From: ${fromAddress}</br>Transaction Amount: ${amount}`);
 
         const transactionAmount = parseFloat(amount);
-        balanceHistory = toAddress === userAddress ? balanceHistory - transactionAmount : balanceHistory + transactionAmount;
+        currentBalance = toAddress === userAddress ? currentBalance - transactionAmount : currentBalance + transactionAmount;
       }
-      setPlotData(formattedPlotData);
+      setLineGraphData(formattedLineGraphData);
+
+      // let startingBalance = 0;
+      // transactions.forEach((transaction, i) => {
+      //   const { timestamp, toAddress, fromAddress, amount } = transaction;
+      //   formattedLineGraphData.timestamps.push(moment(timestamp).format('MM/DD/YY hh:ss'));
+      //   formattedLineGraphData.tooltips.push(`To: ${toAddress}<br>From: ${fromAddress}</br>Transaction Amount: ${amount}`);
+
+      //   const transactionAmount = parseFloat(amount);
+      //   startingBalance = toAddress === userAddress ? startingBalance + transactionAmount : startingBalance - transactionAmount;
+      //   formattedLineGraphData.balances.push(startingBalance);
+      // })
+      // setLineGraphData(formattedLineGraphData);
     }
   }, [data]);
 
+  //hovering over points on graph will show tooltip with extra data
+  //in the case the graph becomes zoomed in, you can double click the graph to zoom back out
   return (
-    <div>
+    <Wrapper>
       <Plot 
         data={[
           {
             type: 'scatter',
             mode: 'lines+markers',
-            x: plotData.timestamps,
-            y: plotData.balances,
-            hovertemplate: 'Balance: %{y}' +
-            '<br>Date: %{x}<br>' +
-            '%{text}',
-            text: plotData.tooltips,
+            line: {shape: 'spline'}, 
+            type: 'scatter',
+            x: lineGraphData.timestamps,
+            y: lineGraphData.balances,
+            hovertemplate: '<br>Date: %{x}<br>' +
+            '%{text}<br>' + 
+            'Balance: %{y}' +
+            '<extra></extra>',
+            text: lineGraphData.tooltips,
           }
         ]}
         layout={
           {
-            width: 1000,
-            height: 500,
-            title: 'Balance and Transaction History'
+            width: 1200,
+            height: 800,
+            margin: { l: 60 , r: 50, b: 100, t: 25, pad: 10 },
+            title: 'Balance and Transaction History',
+
           }
         }
       />
-    </div>
+    </Wrapper>
   )
 };
 

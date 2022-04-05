@@ -1,26 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import PrivateRoute from './routes/PrivateRoute';
 import SignIn from './components/SignIn';
 import Jobcoin from './components/Jobcoin';
 
 const App = () => {
-  //save userAddress so that we keep them signed in
-  const [userAddress, setUserAddress] = useState(localStorage.getItem('userAddress'));
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (userAddress) {
-      navigate('/jobcoin');
-    }
-  }, [userAddress]);
-
   return (
-    <Routes>
-      <Route path='/' element={<SignIn setUserAddress={setUserAddress} />} />
-      <Route path='/jobcoin' element={<Jobcoin userAddress={userAddress} />} />
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/sign-in' element={<SignIn />} />
+        <Route path='/jobcoin' element={<PrivateRoute Component={Jobcoin}/>} />
+        <Route path="/" element={<Navigate replace to="/sign-in" />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

@@ -8,7 +8,9 @@ export const Wrapper = styled.div`
 `;
 
 export const DetailsWrapper = styled.div`
-  height: 300px;
+  display: flex;
+  flex-direction: column;
+  height: 250px;
   width: 400px;
   border: 1px solid black;
   border-radius: 5px;
@@ -26,16 +28,12 @@ export const Title = styled.div`
 `;
 
 export const InputWrapper = styled.div`
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 20px;
 `;
-
-export const InputTitle = styled.div`
-
-`
 
 export const InputForm = styled.input`
   margin-top: 10px;
@@ -43,6 +41,6 @@ export const InputForm = styled.input`
 `;
 
 export const SignInButton = styled.button`
-  width: 200px;
+  width: 179px;
 `;
 

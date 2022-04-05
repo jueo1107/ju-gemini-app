@@ -1,23 +1,22 @@
-import React from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useContext } from 'react';
 
-import { Wrapper, Profile } from './styled';
+import { AppContext } from '../../../context/AppContext';
+
+import { Wrapper, Title, Profile, Address, SignOutLink } from './styled';
 
 const Header = ({ userAddress }) => {
-
-  const navigate = useNavigate();
+  const { setUserAddress } = useContext(AppContext);
 
   const handleSignOut = () => {
-    localStorage.removeItem('userAddress');
-    navigate('/');
+    setUserAddress('');
   };
 
   return (
     <Wrapper>
-      <div>Jobcoin Sender</div>
+      <Title>Jobcoin Sender</Title>
       <Profile>
-        <div>{userAddress}</div>
-        <button onClick={handleSignOut}>Sign Out</button>
+        <Address>{userAddress}</Address>
+        <SignOutLink to='/' onClick={handleSignOut}>Sign Out</SignOutLink>
       </Profile>
     </Wrapper>
   )
